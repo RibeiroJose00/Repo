@@ -1,0 +1,6 @@
+%% Sugiera una representación en punto fijo que sea óptima para almacenar
+%% la señal del Ejercicio 1, sin la presencia del ruido.
+
+La representacion sugerida es Q2.14. Esta representacion permite representar enteros en el rango [-2,2);
+
+%% Nota del Ej. 2: 0 o 1
