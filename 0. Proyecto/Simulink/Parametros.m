@@ -125,10 +125,10 @@ ylabel('Eje Imaginario')
 title('Diagrama de polos y ceros a lazo abierto para barrido de parámetros J_{eq}')
 Jeq_range
 
-% %% Lazo de corriente
-% p = -5000;
-% tau = -1/p;
-% G_i = tf(1,[tau 1]);
+%% Lazo de corriente
+Kp_c = 0.565;
+Ki_c = 980;
+
 % %% Controlador PID Jeq nominal
 % 
 % n = 2.5;
