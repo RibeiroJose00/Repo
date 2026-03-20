@@ -69,32 +69,23 @@ G_u = tf(num_Gu,den_Gu);
 num_GL = [0 0 L_s R_s];
 den_GL = [L_s*J_eq_nom (R_s*J_eq_nom+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
 
-G_L = tf(num_GL,den_GL);
+G_orig = tf(num_GL,den_GL);
 
-% figure(1)
-% pzmap(G_u)
-% grid on
-% xlabel('Eje Real')
-% ylabel('Eje Imaginario')
-% xlim([-2000,0])
-% ylim([-100,100])
-% title('Diagrama de polos y ceros a lazo abierto')
-
-% figure(1)
-% pzmap(G_L)
-% grid on
-% xlabel('Eje Real')
-% ylabel('Eje Imaginario')
-% xlim([-2000,0])
-% ylim([-100,100])
-% title('Diagrama de polos y ceros a lazo abierto')
+figure(1)
+pzmap(G_orig)
+grid on
+xlabel('Eje Real')
+ylabel('Eje Imaginario')
+xlim([-2000,0])
+ylim([-100,100])
+title('Diagrama de polos y ceros a lazo abierto')
 
 
 %% Valor de frecuencia y amortiguacion relativa
-wn = sqrt((R_s*b_eq + K_e^2)/(J_eq_nom*L_s));   
-xita = (L_s*b_eq+R_s*J_eq_nom)/(J_eq_nom*L_s*2*wn);
-
-s = pole(G_L);
+% wn = sqrt((R_s*b_eq + K_e^2)/(J_eq_nom*L_s));   
+% xita = (L_s*b_eq+R_s*J_eq_nom)/(J_eq_nom*L_s*2*wn);
+% 
+% s = pole(G_L);
 
 
 Jeq_step = (max(J_eq)-min(J_eq))/9;
@@ -104,7 +95,7 @@ num_GL = [0 0 L_s R_s];
 den_GL = [L_s*Jeq_range(1) (R_s*Jeq_range(1)+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
 polos = roots(den_GL)
 G_L = tf(num_GL,den_GL);
-figure(1)
+figure(2)
 pzmap(G_L,'r')
 hold on
 for i = 2:10
@@ -113,7 +104,6 @@ for i = 2:10
     den_GL = [L_s*Jeq_range(i) (R_s*Jeq_range(i)+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
     polos = roots(den_GL)
     G_L = tf(num_GL,den_GL);
-    figure(1)
     pzmap(G_L,'r')
     hold on
 end
@@ -129,36 +119,66 @@ Jeq_range
 Kp_c = 0.565;
 Ki_c = 980;
 
-Kd_m = 0.001;
-Kp_m = 0.565;
-Ki_m = 980;
 
-% %% Controlador PID Jeq nominal
+
+%% Controlador PID Jeq nominal
+
+n = 2.5;
+w_pos = 1200;
+
+% Kd_m = J_eq_nom*n*w_pos;
+% Kp_m = J_eq_nom*n*w_pos^2-b_eq;
+% Ki_m = J_eq_nom*w_pos^3;
 % 
-% n = 2.5;
-% w_pos = 800;
-% 
-% ba = Jeq*n*w_pos;
-% Ksa = Jeq*n*w_pos^2;
-% Ksia = Jeq*w_pos^3;
-% 
-% num_PID = [0 ba Ksa Ksia];
-% den_PID = [Jeq ba Ksa Ksia];
-% G_PID = tf(num_PID,den_PID)
+% num_PID = [0 Kd_m Kp_m Ki_m];
+% den_PID = [J_eq_nom Kd_m Kp_m Ki_m];
+% G_PID = tf(num_PID,den_PID);
 % roots(den_PID);
 % 
-% %% Controlador PID Jeq max
+% %% Controlador PID Jeq min
 % 
-% num_PID = [0 ba Ksa Ksia];
-% den_PID = [Jeq_max ba Ksa Ksia];
-% G_PID_max = tf(num_PID,den_PID);
+% Kd_m = J_eq(1)*n*w_pos;
+% Kp_m = J_eq(1)*n*w_pos^2-b_eq;
+% Ki_m = J_eq(1)*w_pos^3;
+% 
+% num_PID = [0 Kd_m Kp_m Ki_m];
+% den_PID = [J_eq(1) Kd_m Kp_m Ki_m];
+% G_PID_min = tf(num_PID,den_PID);
 % roots(den_PID);
-% 
-% figure(1)
-% h = pzplot(G_orig, G_i, G_PID, G_PID_max);
-% grid on
-% 
-% %% Constantes del observador
+
+%% Controlador PID Jeq max
+
+Kd_m = J_eq(2)*n*w_pos;
+Kp_m = J_eq(2)*n*w_pos^2-b_eq;
+Ki_m = J_eq(2)*w_pos^3;
+
+num_PID = [0 Kd_m Kp_m Ki_m];
+den_PID = [J_eq(2) Kd_m Kp_m Ki_m];
+G_PID_max = tf(num_PID,den_PID);
+roots(den_PID);
+
+figure(4)
+h = pzplot(G_orig, G_PID_max);
+title('Diagrama de polos y ceros a lazo cerrado comparativo')
+grid on
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%% Constantes del observador
 % A = [0 1
 %      0 0];
 % 
