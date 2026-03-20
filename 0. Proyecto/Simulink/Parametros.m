@@ -129,6 +129,10 @@ Jeq_range
 Kp_c = 0.565;
 Ki_c = 980;
 
+Kd_m = 0.001;
+Kp_m = 0.565;
+Ki_m = 980;
+
 % %% Controlador PID Jeq nominal
 % 
 % n = 2.5;
