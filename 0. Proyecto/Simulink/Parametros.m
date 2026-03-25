@@ -1,65 +1,5 @@
 clear,clc,close all
 
-%% Forma de la carga
-syms alpha m g l
-syms phi theta psi real   % Roll (phi), Pitch (theta), Yaw (psi)
-syms g real               % magnitud de gravedad (positiva)
-
-% --- Matrices de rotacion elementales ---
-
-% Rotacion alrededor de X: Roll (phi)
-Rx = [1,      0,       0;
-      0,  cos(phi), -sin(phi);
-      0,  sin(phi),  cos(phi)];
-
-% Rotacion alrededor de Y: Pitch (theta)
-Ry = [ cos(theta), 0, sin(theta);
-            0,     1,      0;
-      -sin(theta), 0, cos(theta)];
-
-% Rotacion alrededor de Z: Yaw (psi)
-Rz = [cos(psi), -sin(psi), 0;
-      sin(psi),  cos(psi), 0;
-           0,        0,    1];
-
-% --- Matriz de rotacion completa (convencion ZYX / aeronautica) ---
-% Transforma del marco inercial al marco cuerpo
-R = Rz * Ry * Rx;
-R_simplified = simplify(R);
-
-disp('=== Matriz de rotacion R = Rz * Ry * Rx ===');
-disp(R_simplified);
-
-% --- Vector de gravedad en marco inercial ---
-% Gravedad apunta en -Z del marco inercial
-g_inertial = [0; 0; -m*g];
-
-% --- Vector de gravedad en marco cuerpo ---
-g_body = R * g_inertial;
-g_body = simplify(g_body);
-
-disp('=== Vector de gravedad en marco cuerpo ===');
-fprintf('gx = '); disp(g_body(1));
-fprintf('gy = '); disp(g_body(2));
-fprintf('gz = '); disp(g_body(3));
-
-% % --- Verificacion: norma debe conservarse ---
-% norma = simplify(norm(g_body));
-% disp('=== Norma del vector (debe ser g) ===');
-% disp(norma);
-
-% --- Vector r en marco cuerpo ---
-r = [l*cos(alpha); l*sin(alpha); 0];
-
-% --- Producto cruz r x g_body ---
-tau = cross(r, g_body);
-tau = simplify(tau);
-
-disp('=== Producto cruz tau = r x g_body ===');
-fprintf('tau_x = '); disp(tau(1));
-fprintf('tau_y = '); disp(tau(2));
-fprintf('tau_z = '); disp(tau(3));
-
 %% Sistema mecanico
 
 g = 9.80665;              % m/s^2
@@ -101,6 +41,18 @@ J_eq_nom = 0.5*(J_eq(1)+J_eq(2));
 
 b_eq = b_l*(1/r)^2+b_m;   % friccion equivalente del lado motor
 
+roll = deg2rad(0);
+
+pitch = deg2rad(0);
+
+yaw = deg2rad(0);         % Ángulos de rotación
+
+s_pitch = sin(pitch);
+
+c_pitch = cos(pitch);
+
+s_roll = sin(roll);
+
 %% Sistema electromagnetico
 
 I_0 = 0.448;              % A
@@ -124,9 +76,8 @@ den_Gu = [L_s*J_eq_nom (R_s*J_eq_nom+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
 
 G_u = tf(num_Gu,den_Gu);
 
-
 % Funcion de transferencia sin alimentacion y con carga (T_L=0)
-num_GL = [0 0 L_s R_s];
+num_GL = [0 0 L_s/r R_s/r];
 den_GL = [L_s*J_eq_nom (R_s*J_eq_nom+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
 
 G_orig = tf(num_GL,den_GL);
@@ -222,6 +173,41 @@ h = pzplot(G_orig, G_PID_max);
 title('Diagrama de polos y ceros a lazo cerrado comparativo')
 grid on
 
+
+%% Observador
+
+ke_tita = 9600;
+ke_w = 30720000;
+ke_int = 32768000000;
+
+%% Simulacion Sistema Completo
+% Define time parameters
+t_start = 0;
+t_ramp_up = 5;
+t_constant = 10;
+t_end = 15;
+t_step = 0.01;
+
+% Create time vector
+t = t_start:t_step:(t_end-t_step);
+
+
+% Create ramp up, constant, and ramp down vectors
+ramp_up = linspace(0, 2*pi, round((t_ramp_up-t_start)/t_step));
+constant = 2*pi*ones(1, round((t_constant-t_ramp_up)/t_step));
+ramp_down = linspace(2*pi, 0, round((t_end-t_constant)/t_step));
+
+% Concatenate vectors to create the final function
+q = [ramp_up constant ramp_down];
+
+
+% % Plot the function
+% plot(t, q);
+% xlabel('Time (s)');
+% ylabel('Function Value');
+% title('Ramp-Constant-Ramp Function');
+% 
+q = timeseries(q,t);
 
 
 
