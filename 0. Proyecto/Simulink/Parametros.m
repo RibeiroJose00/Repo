@@ -12,7 +12,7 @@ J_cm = 6.085e-3;          % kg*m^2
 
 l_l = 0.25;               % m
 
-m_l = 1;                  % [0 1.5] kg (rango de carga)
+m_l = 0;                  % [0 1.5] kg (rango de carga)
 
 J_l = (m*l_cm^2 + J_cm) + m_l*l_l^2;   % kg*m^2
 
@@ -127,15 +127,15 @@ title('Diagrama de polos y ceros a lazo abierto para barrido de parámetros J_{e
 Jeq_range
 
 %% Lazo de corriente
-pi = -5000;
-tau = -1/pi;
+p_i = -1000;
+tau = -1/p_i;
 G_i = tf(1,[tau 1]);
 
 
 %% Controlador PID Jeq nominal
 
-n = 3;
-w_pos = 1400;
+n = 2.5;
+w_pos = 1200;
 
 % Kd_m = J_eq_nom*n*w_pos;
 % Kp_m = J_eq_nom*n*w_pos^2-b_eq;
@@ -190,8 +190,8 @@ t1_end = 5;
 t1_step = 0.01;
 t1 = t1_start:t1_step:(t1_end-t1_step);
 
-ramp_up1 = linspace(0, 2*pi/5, round((t1_ramp_up-t1_start)/t1_step));
-constant1 = 2*pi/5*ones(1, round((t1_end-t1_ramp_up)/t1_step));
+ramp_up1 = linspace(0, 2*p_i/5, round((t1_ramp_up-t1_start)/t1_step));
+constant1 = 2*p_i/5*ones(1, round((t1_end-t1_ramp_up)/t1_step));
 
 q1 = [ramp_up1 constant1];
 
@@ -203,7 +203,7 @@ t2_end = 10;
 t2_step = 0.01;
 t2 = t2_start:t2_step:(t2_end-t2_step);
 
-ramp_down2 = linspace(2*pi/5, 0, round((t2_ramp_down-t2_start)/t2_step));
+ramp_down2 = linspace(2*p_i/5, 0, round((t2_ramp_down-t2_start)/t2_step));
 constant2 = zeros(1, round((t2_end-t2_ramp_down)/t2_step));
 
 q2 = [ramp_down2 constant2];
@@ -217,9 +217,9 @@ t3_end = 20;
 t3_step = 0.01;
 t3 = t3_start:t3_step:(t3_end-t3_step);
 
-ramp_down3 = linspace(0, -2*pi/5, round((t3_ramp_down-t3_start)/t3_step));
-constant3 = -2*pi/5*ones(1, round((t3_ramp_up-t3_ramp_down)/t3_step));
-ramp_up3 = linspace(-2*pi/5, 0, round((t3_constant-t3_ramp_up)/t3_step));
+ramp_down3 = linspace(0, -2*p_i/5, round((t3_ramp_down-t3_start)/t3_step));
+constant3 = -2*p_i/5*ones(1, round((t3_ramp_up-t3_ramp_down)/t3_step));
+ramp_up3 = linspace(-2*p_i/5, 0, round((t3_constant-t3_ramp_up)/t3_step));
 constant4 = zeros(1, round((t3_end-t3_constant)/t3_step));
 
 q3 = [ramp_down3 constant3 ramp_up3 constant4];
