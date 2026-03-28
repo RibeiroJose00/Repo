@@ -5,14 +5,13 @@ clear,clc,close all
 g = 9.80665;              % m/s^2
 
 m = 1.12;                 % kg
-m_unc = 0.16;             % kg (incertidumbre)
 
 l_cm = 0.125;             % m
 J_cm = 6.085e-3;          % kg*m^2
 
 l_l = 0.25;               % m
 
-m_l = 0;                  % [0 1.5] kg (rango de carga)
+m_l = 1;                  % [0 1.5] kg (rango de carga)
 
 J_l = (m*l_cm^2 + J_cm) + m_l*l_l^2;   % kg*m^2
 
@@ -43,7 +42,7 @@ b_eq = b_l*(1/r)^2+b_m;   % friccion equivalente del lado motor
 
 roll = deg2rad(0);
 
-pitch = deg2rad(0);
+pitch = deg2rad(90);
 
 yaw = deg2rad(0);         % Ángulos de rotación
 
@@ -70,109 +69,87 @@ U_d = 18;               %V
 
 %% Ubicacion de polos
 
-% Funcion de transferencia en vacio (T_L=0)
-num_Gu = [0 0 0 K_t];
-den_Gu = [L_s*J_eq (R_s*J_eq+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
-
-G_u = tf(num_Gu,den_Gu);
-
-% Funcion de transferencia sin alimentacion y con carga (T_L=0)
-num_GL = [0 0 L_s/r R_s/r];
-den_GL = [L_s*J_eq (R_s*J_eq+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
-
-G_orig = tf(num_GL,den_GL);
-
-figure(1)
-pzmap(G_orig)
-grid on
-xlabel('Eje Real')
-ylabel('Eje Imaginario')
-xlim([-2000,0])
-ylim([-100,100])
-title('Diagrama de polos y ceros a lazo abierto')
-
-
-%% Valor de frecuencia y amortiguacion relativa
-% wn = sqrt((R_s*b_eq + K_e^2)/(J_eq_nom*L_s));   
-% xita = (L_s*b_eq+R_s*J_eq_nom)/(J_eq_nom*L_s*2*wn);
+% % Funcion de transferencia en vacio (T_L=0)
+% num_Gu = [0 0 0 K_t];
+% den_Gu = [L_s*J_eq (R_s*J_eq+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
 % 
-% s = pole(G_L);
-
-
-Jeq_step = (max(J_eq)-min(J_eq))/9;
-Jeq_range = zeros(1,9);
-Jeq_range(1) = min(J_eq);
-num_GL = [0 0 L_s R_s];
-den_GL = [L_s*Jeq_range(1) (R_s*Jeq_range(1)+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
-polos = roots(den_GL)
-G_L = tf(num_GL,den_GL);
-figure(2)
-pzmap(G_L,'r')
-hold on
-for i = 2:10
-    Jeq_range(i) = Jeq_range(i-1) + Jeq_step;
-    num_GL = [0 0 L_s R_s];
-    den_GL = [L_s*Jeq_range(i) (R_s*Jeq_range(i)+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
-    polos = roots(den_GL)
-    G_L = tf(num_GL,den_GL);
-    pzmap(G_L,'r')
-    hold on
-end
-grid on
-xlim([-250,0])
-ylim([-250,250])
-xlabel('Eje Real')
-ylabel('Eje Imaginario')
-title('Diagrama de polos y ceros a lazo abierto para barrido de parámetros J_{eq}')
-Jeq_range
+% G_u = tf(num_Gu,den_Gu);
+% 
+% % Funcion de transferencia sin alimentacion y con carga (T_L=0)
+% num_GL = [0 0 L_s/r R_s/r];
+% den_GL = [L_s*J_eq (R_s*J_eq+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
+% 
+% G_orig = tf(num_GL,den_GL);
+% 
+% figure(1)
+% pzmap(G_orig)
+% grid on
+% xlabel('Eje Real')
+% ylabel('Eje Imaginario')
+% xlim([-2000,0])
+% ylim([-100,100])
+% title('Diagrama de polos y ceros a lazo abierto')
+% 
+% 
+% %% Valor de frecuencia y amortiguacion relativa
+% % wn = sqrt((R_s*b_eq + K_e^2)/(J_eq_nom*L_s));   
+% % xita = (L_s*b_eq+R_s*J_eq_nom)/(J_eq_nom*L_s*2*wn);
+% % 
+% % s = pole(G_L);
+% 
+% 
+% Jeq_step = (max(J_eq)-min(J_eq))/9;
+% Jeq_range = zeros(1,9);
+% Jeq_range(1) = min(J_eq);
+% num_GL = [0 0 L_s R_s];
+% den_GL = [L_s*Jeq_range(1) (R_s*Jeq_range(1)+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
+% polos = roots(den_GL)
+% G_L = tf(num_GL,den_GL);
+% figure(2)
+% pzmap(G_L,'r')
+% hold on
+% for i = 2:10
+%     Jeq_range(i) = Jeq_range(i-1) + Jeq_step;
+%     num_GL = [0 0 L_s R_s];
+%     den_GL = [L_s*Jeq_range(i) (R_s*Jeq_range(i)+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
+%     polos = roots(den_GL)
+%     G_L = tf(num_GL,den_GL);
+%     pzmap(G_L,'r')
+%     hold on
+% end
+% grid on
+% xlim([-250,0])
+% ylim([-250,250])
+% xlabel('Eje Real')
+% ylabel('Eje Imaginario')
+% title('Diagrama de polos y ceros a lazo abierto para barrido de parámetros J_{eq}')
+% Jeq_range
 
 %% Lazo de corriente
-p_i = -1000;
+p_i = -6000;
 tau = -1/p_i;
 G_i = tf(1,[tau 1]);
 
 
 %% Controlador PID Jeq nominal
 
-n = 2.5;
-w_pos = 1200;
-
-% Kd_m = J_eq_nom*n*w_pos;
-% Kp_m = J_eq_nom*n*w_pos^2-b_eq;
-% Ki_m = J_eq_nom*w_pos^3;
-% 
-% num_PID = [0 Kd_m Kp_m Ki_m];
-% den_PID = [J_eq_nom Kd_m Kp_m Ki_m];
-% G_PID = tf(num_PID,den_PID);
-% roots(den_PID);
-% 
-% %% Controlador PID Jeq min
-% 
-% Kd_m = J_eq(1)*n*w_pos;
-% Kp_m = J_eq(1)*n*w_pos^2-b_eq;
-% Ki_m = J_eq(1)*w_pos^3;
-% 
-% num_PID = [0 Kd_m Kp_m Ki_m];
-% den_PID = [J_eq(1) Kd_m Kp_m Ki_m];
-% G_PID_min = tf(num_PID,den_PID);
-% roots(den_PID);
-
-%% Controlador PID Jeq max
+n = 2.8;
+w_pos = 800;
 
 Kd_m = J_eq*n*w_pos;
-Kp_m = J_eq*n*w_pos^2-b_eq;
+Kp_m = J_eq*n*w_pos^2;
 Ki_m = J_eq*w_pos^3;
 
 num_PID = [0 Kd_m Kp_m Ki_m];
 den_PID = [J_eq Kd_m Kp_m Ki_m];
 G_PID_max = tf(num_PID,den_PID);
 roots(den_PID);
-
-figure(4)
-h = pzplot(G_orig, G_PID_max);
-title('Diagrama de polos y ceros a lazo cerrado comparativo')
-grid on
-
+% 
+% figure(4)
+% h = pzplot(G_orig, G_PID_max);
+% title('Diagrama de polos y ceros a lazo cerrado comparativo')
+% grid on
+% 
 
 %% Observador
 
