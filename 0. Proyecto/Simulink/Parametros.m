@@ -42,7 +42,7 @@ b_eq = b_l*(1/r)^2+b_m;   % friccion equivalente del lado motor
 
 roll = deg2rad(0);
 
-pitch = deg2rad(90);
+pitch = deg2rad(0);
 
 yaw = deg2rad(0);         % Ángulos de rotación
 
@@ -126,14 +126,14 @@ U_d = 18;               %V
 % Jeq_range
 
 %% Lazo de corriente
-p_i = -6000;
+p_i = -5000;
 tau = -1/p_i;
 G_i = tf(1,[tau 1]);
 
 
 %% Controlador PID Jeq nominal
 
-n = 2.8;
+n = 2.5;
 w_pos = 800;
 
 Kd_m = J_eq*n*w_pos;
@@ -152,10 +152,10 @@ roots(den_PID);
 % 
 
 %% Observador
-
-ke_tita = 25000000;
-ke_w = 75000000;
-ke_int = 125000000000;
+w_obs = 5000;
+ke_tita = w_obs*3;
+ke_w = 3*w_obs^2;
+ke_int = w_obs^3;
 
 %% Simulacion Sistema Completo
 % Nueva consigna
