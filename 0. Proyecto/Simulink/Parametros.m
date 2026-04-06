@@ -11,7 +11,8 @@ J_cm = 6.085e-3;          % kg*m^2
 
 l_l = 0.25;               % m
 
-m_l = 1;                  % [0 1.5] kg (rango de carga)
+% m_l = [0 1.5];                  % [0 1.5] kg (rango de carga)
+m_l = 1.5;
 
 J_l = (m*l_cm^2 + J_cm) + m_l*l_l^2;   % kg*m^2
 
@@ -36,15 +37,17 @@ k_l = m*g*l_cm+m_l*g*l_l; % constante de carga gravitacional
 
 J_eq = J_l*(1/r)^2+J_m;   % Inercia equivalente del lado motor
 
-% J_eq_nom = 0.5*(J_eq(1)+J_eq(2));
+% J_eq_max =( ( m*l_cm^2 + J_cm ) + 1.5*l_l^2 )*(1/r)^2+J_m;
+% 
+% J_eq_min = (m*l_cm^2 + J_cm)*(1/r)^2+J_m;
 
 b_eq = b_l*(1/r)^2+b_m;   % friccion equivalente del lado motor
 
-roll = deg2rad(0);
+roll = deg2rad(110);
 
-pitch = deg2rad(0);
+pitch = deg2rad(15);
 
-yaw = deg2rad(0);         % Ángulos de rotación
+yaw = deg2rad(-0);         % Ángulos de rotación
 
 s_pitch = sin(pitch);
 
@@ -70,28 +73,28 @@ U_d = 18;               %V
 %% Ubicacion de polos
 
 % % Funcion de transferencia en vacio (T_L=0)
-% num_Gu = [0 0 0 K_t];
-% den_Gu = [L_s*J_eq (R_s*J_eq+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
+% num_Gu = [0 0 K_t 0];
+% den_Gu = [L_s*J_eq(1) (R_s*J_eq(1)+L_s*b_eq) (L_s*k_l*s_pitch+R_s*b_eq+K_e*K_t) R_s*k_l*s_pitch];
 % 
 % G_u = tf(num_Gu,den_Gu);
 % 
-% % Funcion de transferencia sin alimentacion y con carga (T_L=0)
-% num_GL = [0 0 L_s/r R_s/r];
-% den_GL = [L_s*J_eq (R_s*J_eq+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
+% % Funcion de transferencia sin alimentacion y con carga (U_d=0; T_p~=0)
+% num_GL = [0 L_s/r R_s/r 0];
+% den_GL = [L_s*J_eq(1) (R_s*J_eq(1)+L_s*b_eq) (L_s*k_l*s_pitch+R_s*b_eq+K_e*K_t) R_s*k_l*s_pitch];
 % 
 % G_orig = tf(num_GL,den_GL);
 % 
-% figure(1)
-% pzmap(G_orig)
-% grid on
-% xlabel('Eje Real')
-% ylabel('Eje Imaginario')
-% xlim([-2000,0])
-% ylim([-100,100])
-% title('Diagrama de polos y ceros a lazo abierto')
-% 
-% 
-% %% Valor de frecuencia y amortiguacion relativa
+% % figure(1)
+% % pzmap(G_u)
+% % grid on
+% % xlabel('Eje Real')
+% % ylabel('Eje Imaginario')
+% % xlim([-2000,0])
+% % ylim([-100,100])
+% % title('Diagrama de polos y ceros a lazo abierto')
+
+
+%% Valor de frecuencia y amortiguacion relativa
 % % wn = sqrt((R_s*b_eq + K_e^2)/(J_eq_nom*L_s));   
 % % xita = (L_s*b_eq+R_s*J_eq_nom)/(J_eq_nom*L_s*2*wn);
 % % 
@@ -99,21 +102,25 @@ U_d = 18;               %V
 % 
 % 
 % Jeq_step = (max(J_eq)-min(J_eq))/9;
+% k_l_step = (max(k_l)-min(k_l))/9;
 % Jeq_range = zeros(1,9);
 % Jeq_range(1) = min(J_eq);
-% num_GL = [0 0 L_s R_s];
-% den_GL = [L_s*Jeq_range(1) (R_s*Jeq_range(1)+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
-% polos = roots(den_GL)
-% G_L = tf(num_GL,den_GL);
-% figure(2)
+% k_l_range = zeros(1,9);
+% k_l_range(1) = min(k_l);
+% num_Gu = [0 0 K_t 0];
+% den_Gu = [L_s*J_eq(1) (R_s*J_eq(1)+L_s*b_eq) (L_s*k_l(1)*s_pitch+R_s*b_eq+K_e*K_t) R_s*k_l(1)*s_pitch];
+% polos = roots(den_Gu)
+% G_L = tf(num_Gu,den_Gu);
+% figure(1)
 % pzmap(G_L,'r')
 % hold on
 % for i = 2:10
 %     Jeq_range(i) = Jeq_range(i-1) + Jeq_step;
-%     num_GL = [0 0 L_s R_s];
-%     den_GL = [L_s*Jeq_range(i) (R_s*Jeq_range(i)+L_s*b_eq) (R_s*b_eq+K_e*K_t) 0];
-%     polos = roots(den_GL)
-%     G_L = tf(num_GL,den_GL);
+%     k_l_range(i) = k_l_range(i-1) + k_l_step;
+%     num_Gu = [0 0 L_s R_s];
+%     den_Gu = [L_s*Jeq_range(i) (R_s*Jeq_range(i)+L_s*b_eq) (L_s*k_l_range(i)*s_pitch+R_s*b_eq+K_e*K_t) R_s*k_l_range(i)*s_pitch];
+%     polos = roots(den_Gu)
+%     G_L = tf(num_Gu,den_Gu);
 %     pzmap(G_L,'r')
 %     hold on
 % end
@@ -124,6 +131,7 @@ U_d = 18;               %V
 % ylabel('Eje Imaginario')
 % title('Diagrama de polos y ceros a lazo abierto para barrido de parámetros J_{eq}')
 % Jeq_range
+% k_l_range
 
 %% Lazo de corriente
 p_i = -5000;
@@ -133,23 +141,28 @@ G_i = tf(1,[tau 1]);
 
 %% Controlador PID Jeq nominal
 
-n = 2.5;
+n = 2.8;
 w_pos = 800;
 
 Kd_m = J_eq*n*w_pos;
 Kp_m = J_eq*n*w_pos^2;
 Ki_m = J_eq*w_pos^3;
 
+num_Gu = [0 0 0 K_t];
+den_Gu = [L_s*J_eq (R_s*J_eq+L_s*b_eq) (L_s*k_l*s_pitch+R_s*b_eq+K_e*K_t) R_s*k_l*s_pitch];
+G_u = tf(num_Gu,den_Gu);
+
+
 num_PID = [0 Kd_m Kp_m Ki_m];
 den_PID = [J_eq Kd_m Kp_m Ki_m];
-G_PID_max = tf(num_PID,den_PID);
-roots(den_PID);
-% 
-% figure(4)
-% h = pzplot(G_orig, G_PID_max);
-% title('Diagrama de polos y ceros a lazo cerrado comparativo')
-% grid on
-% 
+G_PID = tf(num_PID,den_PID);
+
+
+figure(1)
+h = pzplot( G_i, 'c', G_u, 'b', G_PID, 'r');
+title('Diagrama de polos y ceros a lazo cerrado comparativo')
+grid on
+
 
 %% Observador
 w_obs = 5000;
@@ -167,8 +180,8 @@ t1_end = 5;
 t1_step = 0.01;
 t1 = t1_start:t1_step:(t1_end-t1_step);
 
-ramp_up1 = linspace(0, 2*p_i/5, round((t1_ramp_up-t1_start)/t1_step));
-constant1 = 2*p_i/5*ones(1, round((t1_end-t1_ramp_up)/t1_step));
+ramp_up1 = linspace(0, pi/5, round((t1_ramp_up-t1_start)/t1_step));
+constant1 = pi/5*ones(1, round((t1_end-t1_ramp_up)/t1_step));
 
 q1 = [ramp_up1 constant1];
 
@@ -180,7 +193,7 @@ t2_end = 10;
 t2_step = 0.01;
 t2 = t2_start:t2_step:(t2_end-t2_step);
 
-ramp_down2 = linspace(2*p_i/5, 0, round((t2_ramp_down-t2_start)/t2_step));
+ramp_down2 = linspace(pi/5, 0, round((t2_ramp_down-t2_start)/t2_step));
 constant2 = zeros(1, round((t2_end-t2_ramp_down)/t2_step));
 
 q2 = [ramp_down2 constant2];
@@ -194,9 +207,9 @@ t3_end = 20;
 t3_step = 0.01;
 t3 = t3_start:t3_step:(t3_end-t3_step);
 
-ramp_down3 = linspace(0, -2*p_i/5, round((t3_ramp_down-t3_start)/t3_step));
-constant3 = -2*p_i/5*ones(1, round((t3_ramp_up-t3_ramp_down)/t3_step));
-ramp_up3 = linspace(-2*p_i/5, 0, round((t3_constant-t3_ramp_up)/t3_step));
+ramp_down3 = linspace(0, -pi/5, round((t3_ramp_down-t3_start)/t3_step));
+constant3 = -pi/5*ones(1, round((t3_ramp_up-t3_ramp_down)/t3_step));
+ramp_up3 = linspace(-pi/5, 0, round((t3_constant-t3_ramp_up)/t3_step));
 constant4 = zeros(1, round((t3_end-t3_constant)/t3_step));
 
 q3 = [ramp_down3 constant3 ramp_up3 constant4];
@@ -205,10 +218,11 @@ q3 = [ramp_down3 constant3 ramp_up3 constant4];
 t4_start = 15.01;
 
 
-t_new = [t1 t2 t3];
-q_vel = [q1 q2 q3];
+t_new = [t1/5 t2/5 t3/5];
+q_vel = [5*q1 5*q2 5*q3];
 
-% % Plot the function
+% Plot the function
+% figure(2)
 % plot(t_new, q_vel);
 % xlabel('Time (s)');
 % ylabel('Function Value');
@@ -229,166 +243,7 @@ q_vel = timeseries(q_vel,t_new);
 
 
 
-%% Constantes del observador
-% A = [0 1
-%      0 0];
-% 
-% Bc = [0
-%       1/Jeq];
-% 
-% Bd = -r*Bc;
-% 
-% C = [1 0];
-% 
-% D = [0];
-% sist = ss(A,Bc,C,D);
-% H_sist = tf(sist)
-% 
-% syms Ktita Komega s
-% K = [Ktita
-%     Komega];
-% 
-% A_prima = A - K*C;
-% 
-% I = eye(2);
-% 
-% p_obs = expand(det(s*I-A_prima))
-% 
-% p_des = expand((s+3200)^2)
-% 
-% Ke_tita = 6400;
-% Ke_w = 10240000;
-% 
-% %% Simulacion Sistema Completo
-% % Define time parameters
-% t_start = 0;
-% t_ramp_up = 5;
-% t_constant = 10;
-% t_end = 15;
-% t_step = 0.01;
-% 
-% % Create time vector
-% t = t_start:t_step:(t_end-t_step);
-% 
-% 
-% % Create ramp up, constant, and ramp down vectors
-% ramp_up = linspace(0, 2*pi, round((t_ramp_up-t_start)/t_step));
-% constant = 2*pi*ones(1, round((t_constant-t_ramp_up)/t_step));
-% ramp_down = linspace(2*pi, 0, round((t_end-t_constant)/t_step));
-% 
-% % Concatenate vectors to create the final function
-% q = [ramp_up constant ramp_down];
-% 
-% 
-% % % Plot the function
-% % plot(t, q);
-% % xlabel('Time (s)');
-% % ylabel('Function Value');
-% % title('Ramp-Constant-Ramp Function');
-% % 
-% q = timeseries(q,t);
-% 
-% %% Nueva consigna
-% 
-% % Primera parte
-% t1_start = 0;
-% t1_ramp_up = 0.1;
-% t1_end = 5;
-% t1_step = 0.01;
-% t1 = t1_start:t1_step:(t1_end-t1_step);
-% 
-% ramp_up1 = linspace(0, 2*pi/5, round((t1_ramp_up-t1_start)/t1_step));
-% constant1 = 2*pi/5*ones(1, round((t1_end-t1_ramp_up)/t1_step));
-% 
-% q1 = [ramp_up1 constant1];
-% 
-% 
-% % Segunda parte
-% t2_start = 5;
-% t2_ramp_down = 5.1;
-% t2_end = 10;
-% t2_step = 0.01;
-% t2 = t2_start:t2_step:(t2_end-t2_step);
-% 
-% ramp_down2 = linspace(2*pi/5, 0, round((t2_ramp_down-t2_start)/t2_step));
-% constant2 = zeros(1, round((t2_end-t2_ramp_down)/t2_step));
-% 
-% q2 = [ramp_down2 constant2];
-% 
-% % Tercera parte
-% t3_start = 10;
-% t3_ramp_down = 10.1;
-% t3_ramp_up = 14.9;
-% t3_constant = 15;
-% t3_end = 20;
-% t3_step = 0.01;
-% t3 = t3_start:t3_step:(t3_end-t3_step);
-% 
-% ramp_down3 = linspace(0, -2*pi/5, round((t3_ramp_down-t3_start)/t3_step));
-% constant3 = -2*pi/5*ones(1, round((t3_ramp_up-t3_ramp_down)/t3_step));
-% ramp_up3 = linspace(-2*pi/5, 0, round((t3_constant-t3_ramp_up)/t3_step));
-% constant4 = zeros(1, round((t3_end-t3_constant)/t3_step));
-% 
-% q3 = [ramp_down3 constant3 ramp_up3 constant4];
-% 
-% % Final
-% t4_start = 15.01;
-% 
-% 
-% t_new = [t1 t2 t3];
-% q_vel = [q1 q2 q3];
-% 
-% % % Plot the function
-% % plot(t_new, q_vel);
-% % xlabel('Time (s)');
-% % ylabel('Function Value');
-% % title('Ramp-Constant-Ramp Function');
-% 
-% q_vel = timeseries(q_vel,t_new);
-% 
-% %% Mejora del Observador
-% 
-% syms Ktita Komega Kint s
-% 
-% A_aug = [0 1 0
-%          0 0 1
-%          0 0 0];
-% B_aug = [0
-%          1/Jeq
-%          0];
-% 
-% C_aug = [1 0 0];
-% 
-% K = [Ktita
-%     Komega
-%     Kint];
-% 
-% A_int = A_aug - K*C_aug;
-% 
-% I = eye(3);
-% 
-% p_obs = expand(det(s*I-A_int))
-% 
-% p_des = expand((s+3200)^3)
-% 
-% ke_tita = 9600;
-% ke_w = 30720000;
-% ke_int = 32768000000;
-% 
-% K = [9600
-%     30720000
-%     32768000000];
-% A_int = A_aug - K*C_aug;
-% 
-% G_obs = C_aug*((s*I-A_int)^-1)*B_aug
-% G_obs = tf([0 0 6946721411010179/137438953472 0],[1 ke_tita ke_w ke_int])
-% 
-% %% Prueba Térmica
-% % q_ter = [q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel q_vel];
-% % t_ter = 0:0.01:(300-0.01);
-% % 
-% % q_ter = timeseries(q_ter,t_ter);
-% 
+
 % %% Sensores no ideales
 % frec_tita = 5000; 
 % xita_tita = 1;
@@ -426,7 +281,7 @@ q_vel = timeseries(q_vel,t_new);
 % Vsat = sqrt(2/3)*Vsl;
 % 
 % %% Controlador Discreto
-% Ts = 2*pi/(3200*10);
+% Ts = pi/5/(3200*10);
 % % 
 % % G_PID_z = c2d(G_PID,Ts,'tustin')
 % % [num_z,den_z] = tfdata(G_PID_z,'v')

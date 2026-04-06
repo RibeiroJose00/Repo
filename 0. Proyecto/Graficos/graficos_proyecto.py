@@ -10,12 +10,12 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # ── 1. VALORES NUMERICOS ──────────────────────────────────────────────────────
-phi_val   = np.radians(10)   # Roll
-theta_val = np.radians(40)   # Pitch
-psi_val   = np.radians(50)   # Yaw
+phi_val   = np.radians(0)   # Roll
+theta_val = np.radians(0)   # Pitch
+psi_val   = np.radians(0)   # Yaw
 g_val     = 9.81
 l_val     = 1.0
-alpha_val = np.radians(30)
+alpha_val = np.radians(0)
 
 # ── 2. MATRICES DE ROTACION ───────────────────────────────────────────────────
 def Rx(a):
