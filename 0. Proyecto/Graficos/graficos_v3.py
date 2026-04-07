@@ -11,11 +11,11 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # ── 1. VALORES NUMERICOS (PARÁMETROS DEL BRAZO) ──────────────────────────────
-phi_val   = np.radians(0)    # Roll del sistema body (rotación alrededor de X_body)
-theta_val = np.radians(-0)    # Pitch del sistema body (rotación alrededor de Y_body)
+phi_val   = np.radians(60)    # Roll del sistema body (rotación alrededor de X_body)
+theta_val = np.radians(-30)    # Pitch del sistema body (rotación alrededor de Y_body)
 psi_val   = np.radians(-0)    # Yaw del sistema body (rotación alrededor de Z_body)
 
-angulo_codo = np.radians(90)  # Ángulo de flexión del codo (independiente de RPY)
+angulo_codo = np.radians(30)  # Ángulo de flexión del codo (independiente de RPY)
 
 g_val     = 9.81
 l_brazo   = 0.30             # Longitud del brazo superior (hombro-codo) en metros
@@ -47,17 +47,17 @@ g_body_num = R_body.T @ g_inertial     # Gravedad en marco body (codo)
 # BRAZO SUPERIOR: En posición inicial (RPY=0), el brazo apunta lateralmente en +X
 # y luego hacia abajo, quedando en dirección [1, 0, -sqrt(3)] normalizado
 # Para simplificar: brazo superior siempre apunta en +X lateral
-codo_posicion_inicial = np.array([0, 0, -l_brazo])
+codo_posicion_inicial = np.array([l_brazo, 0, 0])
 
 # Aplicar rotación RPY al brazo superior
 # (El brazo superior rota con el sistema body)
-brazo_superior_dir_local = np.array([0, 0, -1])  # Dirección en el sistema inicial
+brazo_superior_dir_local = np.array([1, 0, 0])  # Dirección en el sistema inicial
 brazo_superior_dir = R_body @ brazo_superior_dir_local
 codo_posicion = brazo_superior_dir * l_brazo
 
 # ANTEBRAZO: En el sistema body, en posición neutra (angulo_codo=0) apunta hacia abajo (-Z_body)
 # El ángulo de codo lo rota alrededor del eje Y_body
-r_body_num = np.array([0, 0, -l_antebrazo])
+r_body_num = np.array([l_antebrazo, 0, 0])
 
 # Aplicar flexión del codo (rotación alrededor de Y_body)
 # Esto hace que el antebrazo se flexione

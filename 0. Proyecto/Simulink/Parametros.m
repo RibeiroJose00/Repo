@@ -43,9 +43,9 @@ J_eq = J_l*(1/r)^2+J_m;   % Inercia equivalente del lado motor
 
 b_eq = b_l*(1/r)^2+b_m;   % friccion equivalente del lado motor
 
-roll = deg2rad(110);
+roll = deg2rad(30);
 
-pitch = deg2rad(15);
+pitch = deg2rad(30);
 
 yaw = deg2rad(-0);         % Ángulos de rotación
 
@@ -134,14 +134,14 @@ U_d = 18;               %V
 % k_l_range
 
 %% Lazo de corriente
-p_i = -5000;
+p_i = -3200;
 tau = -1/p_i;
 G_i = tf(1,[tau 1]);
 
 
 %% Controlador PID Jeq nominal
 
-n = 2.8;
+n = 2.5;
 w_pos = 800;
 
 Kd_m = J_eq*n*w_pos;
@@ -219,7 +219,7 @@ t4_start = 15.01;
 
 
 t_new = [t1/5 t2/5 t3/5];
-q_vel = [5*q1 5*q2 5*q3];
+q_vel = [2.5*q1 2.5*q2 2.5*q3];
 
 % Plot the function
 % figure(2)
@@ -231,84 +231,13 @@ q_vel = [5*q1 5*q2 5*q3];
 q_vel = timeseries(q_vel,t_new);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 % %% Sensores no ideales
-% frec_tita = 5000; 
-% xita_tita = 1;
+frec_iabc = 10000;
+Ts = 1e-4;
+xita_iabc = 1;
+
+A_iabc = [0 -1; frec_iabc^2 -2*frec_iabc*xita_iabc];
+B_iabc = [1 ; 0];
+C_iabc = [0 1];
+D_iabc = [0];
 % 
-% A_tita = [0 -1; frec_tita^2 -2*frec_tita*xita_tita];
-% B_tita = [1 ; 0];
-% C_tita = [0 1];
-% D_tita = [0];
-% 
-% frec_iabc = 10000; 
-% xita_iabc = 1;
-% 
-% A_iabc = [0 -1; frec_iabc^2 -2*frec_iabc*xita_iabc];
-% B_iabc = [1 ; 0];
-% C_iabc = [0 1];
-% D_iabc = [0];
-% 
-% tau = 1;
-% 
-% A_temp = [-1/tau];
-% B_temp = [1];
-% C_temp = [1/tau];
-% D_temp = [0];
-% 
-% %% Modulador de Tension no ideal
-% frec_vmod = 6000*5;
-% xita_vmod = 1;
-% 
-% A_vmod = [0 -1; frec_vmod^2 -2*frec_vmod*xita_vmod];
-% B_vmod = [1 ; 0];
-% C_vmod = [0 1];
-% D_vmod = 0;
-% 
-% Vsl = 24;
-% Vsat = sqrt(2/3)*Vsl;
-% 
-% %% Controlador Discreto
-% Ts = pi/5/(3200*10);
-% % 
-% % G_PID_z = c2d(G_PID,Ts,'tustin')
-% % [num_z,den_z] = tfdata(G_PID_z,'v')
-% % 
-% % b0 = num_z(1);
-% % b1 = num_z(2);
-% % b2 = num_z(3);
-% % b3 = num_z(4);
-% % a0 = den_z(1);
-% % a1 = den_z(2);
-% % a2 = den_z(3);
-% % a3 = den_z(4);
-% % 
-% % % figure(1)
-% % % step(G_PID,'--',G_PID_z,'-')
-% % % figure(2)
-% % % pzmap(G_PID_z)
-% % 
-% % G_obs_z = c2d(G_obs,Ts,'tustin')
-% % 
-% % syms Kp Ki Kd real
-% % eq1 = b0 == Kp + (Ki * Ts / 2) + (2 * Kd / Ts);
-% % eq2 = b1 == -Kp + (Ki * Ts / 2) - (2 * Kd / Ts);
-% % 
-% % sol = solve([eq1, eq2], [Kp, Ki, Kd]);
-% % Kp_discrete = double(sol.Kp)
-% % Ki_discrete = double(sol.Ki)
-% % Kd_discrete = double(sol.Kd)
-% 
-% % stepinfo(G_orig,'SettlingTimeThreshold',0.01)

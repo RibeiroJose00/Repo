@@ -56,9 +56,9 @@ fprintf('tau_y = '); disp(tau(2));
 fprintf('tau_z = '); disp(tau(3));
 
 %% --- 5. SUSTITUCION NUMERICA ---
-phi_val   = deg2rad(10);
-theta_val = deg2rad(40);
-psi_val   = deg2rad(50);
+phi_val   = deg2rad(30);
+theta_val = deg2rad(30);
+psi_val   = deg2rad(0);
 g_val     = 9.81;
 l_val     = 1;
 alpha_val = deg2rad(30);
