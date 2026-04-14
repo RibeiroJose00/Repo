@@ -43,9 +43,9 @@ J_eq = J_l*(1/r)^2+J_m;   % Inercia equivalente del lado motor
 
 b_eq = b_l*(1/r)^2+b_m;   % friccion equivalente del lado motor
 
-roll = deg2rad(30);
+roll = deg2rad(0);
 
-pitch = deg2rad(30);
+pitch = deg2rad(0);
 
 yaw = deg2rad(-0);         % Ángulos de rotación
 
@@ -232,9 +232,11 @@ q_vel = timeseries(q_vel,t_new);
 
 
 % %% Sensores no ideales
-frec_iabc = 10000;
+frec_iabc = 400;
 Ts = 1e-4;
 xita_iabc = 1;
+
+
 
 A_iabc = [0 -1; frec_iabc^2 -2*frec_iabc*xita_iabc];
 B_iabc = [1 ; 0];
